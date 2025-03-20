@@ -3,6 +3,7 @@ import pygame
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
+from alien import Alien
 
 class AlienInvasion:
     """Overall class to manage game assets and behaviour"""
@@ -28,6 +29,10 @@ class AlienInvasion:
         pygame.display.set_caption("Alien Invasion")
         # Create a group to store the bullets
         self.bullets = pygame.sprite.Group()
+        # Create a group to store the aliens
+        self.aliens = pygame.sprite.Group()
+        # Create the fleet of aliens
+        self._create_fleet()
 
     def run_game(self):
         """Start the main loop for the game."""
@@ -38,7 +43,7 @@ class AlienInvasion:
             self.ship.update()
             # Update bullets position
             self._update_bullets()
-            # Redraw the screen during each pass through the
+            # Redraw the screen during each pass through the loop
             self._update_screen()
             #Limit the loop to 60 frames per second
             self.clock.tick(60)
@@ -77,6 +82,7 @@ class AlienInvasion:
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         self.ship.blitme()
+        self.aliens.draw(self.screen)
         # Make the most recently drawn screen visible.
         pygame.display.flip()
 
@@ -93,6 +99,31 @@ class AlienInvasion:
         if len(self.bullets) < self.settings.bullets_allowed:
             new_bullet = Bullet(self)
             self.bullets.add(new_bullet)
+
+    def _create_fleet(self):
+        """Create the fleet of aliens."""
+        # Make an alien
+        alien = Alien(self)
+        alien_width = alien.rect.width
+        alien_height = alien.rect.height
+        current_x = alien_width
+        current_y = alien_height
+
+        while(current_y <self.screen_height-alien_height*6):
+            while(current_x < self.screen_width - alien_width*2):
+                self._create_alien(current_x,current_y)
+                current_x += 2*alien_width
+            current_x = alien_width
+            current_y += 2*alien_height
+
+
+    def _create_alien(self, x_position, y_position):
+        """Create an alien and place it in a row."""
+        new_alien = Alien(self)
+        new_alien.x = x_position
+        new_alien.rect.x = x_position
+        new_alien.rect.y = y_position
+        self.aliens.add(new_alien)
 
 if __name__ == '__main__':
     # Make a game instance and run the game.
